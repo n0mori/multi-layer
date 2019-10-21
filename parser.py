@@ -3,8 +3,15 @@
 import numpy as np
 import math
 
+
 def sigmoid(x):
-    pass
+    return 1.0 / (1.0 + math.exp(-x))
+
+def eval_layer(entrada, w, b, fn):
+    result = np.matmul(w, entrada) + b
+    vfn = np.vectorize(fn)
+    return vfn(result)
+
 
 def parse(name):
     weights = []
@@ -51,20 +58,58 @@ def parse(name):
                     biases.append(b)
                     continue
                 for k, v in enumerate([float(x) for x in line.split(" ")]):
-                    w[k] = v
+                    b[k] = v
 
     return weights, biases, activations
 
+def test(dataset, labels, weights, biases, activations):
+    fns = {"sigmoid": sigmoid}
 
-def main(name):
-    weights, biases, activations = parse(name)
-    
-    for w, b, a in zip(weights, biases, activations):
-        print(w)
-        print(b)
-        print(a)
+    predictions = []
+
+    for x, l in zip(dataset, labels):
+        result = x
+        for w, b, a in zip(weights, biases, activations):
+            result = eval_layer(result, w, b, fns[a])
+        predictions.append(result)
+        
+    for m in range(labels.shape[1]):
+        tp = fp = tn = fn = 0
+        for l, p in zip(labels, predictions):
+            pred = 1 if np.argmax(p) == m else 0
+            real = l[m]
+
+            if pred == 1 and real == 1:
+                tp += 1
+            elif pred == 1 and real == 0:
+                fp += 1
+            elif pred == 0 and real == 0:
+                tn += 1
+            elif pred == 0 and real == 1:
+                fn += 1
+
+        prec = tp / float(tp + fp) if (tp + fp) > 0 else "N/A"
+        recall = tp / float(tp + fn) if (tp + fn) > 0 else "N/A"
+        print(m, prec,recall)
+    print()
+
+
+def main(name, dims):
+    weights, biases, activations = parse(name + "_NN.txt")
+
+    raw_dataset = np.genfromtxt(name + "_test.csv", delimiter=',', skip_header=2)
+
+    dataset = raw_dataset[:,:dims]
+    labels = raw_dataset[:,dims:]
+
+    print(name)
+    print("class,pred,recall")
+    test(dataset, labels, weights, biases, activations)
 
 
 
 if __name__ == "__main__":
-    main("NL_NN.txt")
+    main("LS", 2)
+    main("MDML", 5)
+    main("NL", 2)
+    main("XOR", 2)
