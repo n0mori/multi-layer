@@ -77,6 +77,8 @@ def test(dataset, labels, weights, biases, activations):
         tp = fp = tn = fn = 0
         for l, p in zip(labels, predictions):
             pred = 1 if np.argmax(p) == m else 0
+            if labels.shape[1] == 1:
+                pred = 1 if p[0] > 0.5 else 0
             real = l[m]
 
             if pred == 1 and real == 1:
@@ -88,9 +90,9 @@ def test(dataset, labels, weights, biases, activations):
             elif pred == 0 and real == 1:
                 fn += 1
 
-        prec = tp / float(tp + fp) if (tp + fp) > 0 else "N/A"
-        recall = tp / float(tp + fn) if (tp + fn) > 0 else "N/A"
-        print(m, prec,recall)
+        prec = round(tp / float(tp + fp), 2) if (tp + fp) > 0 else "N/A"
+        recall = round(tp / float(tp + fn), 2) if (tp + fn) > 0 else "N/A"
+        print(m, prec,recall, sep=' & ', end=' \\\\\n')
     print()
 
 
