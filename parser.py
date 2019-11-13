@@ -111,7 +111,8 @@ def main(name, dims):
 
 
 if __name__ == "__main__":
-    main("LS", 2)
-    main("MDML", 5)
+    # main("LS", 2)
+    # main("MDML", 5)
     main("NL", 2)
-    main("XOR", 2)
+    # main("XOR", 2)
+    # main('mnist', 10)
