@@ -10,11 +10,11 @@ def sigmoid(x):
 
 
 def eval_network(entrada, weights, biases, fn):
-    hs = [entrada]
-    result = entrada
+    result = entrada.reshape(len(entrada), 1)
+    hs = [result]
     for w, b in zip(weights, biases):
         result = eval_layer(result, w, b, fn)
-        hs.append(result[np.newaxis])
+        hs.append(result)
     return hs
 
 
@@ -29,8 +29,7 @@ def sigma_l(d, y):
     return r
 
 def sigma_lminus(wl1, sl, hl):
-    print(wl1.shape, sl.T.shape)
-    r = np.matmul(wl1, sl.T) * (hl * (1 - hl))
+    r = np.matmul(wl1.T, sl) * (hl * (1 - hl))
     return r
 
 
@@ -41,17 +40,17 @@ def train(dataset, arch, dims, reps):
     labels = dataset[:, dims:]
 
     thetas = [np.random.uniform(-1, 1, [v[1], v[0]]) for v in arch]
-    biases = [np.random.uniform(-1, 1, [v[1]]) for v in arch]
+    biases = [np.random.uniform(-1, 1, [v[1], 1]) for v in arch]
 
-    h = eval_network(ds[0], thetas, biases, sigmoid)
 
     for k in range(reps):
         print(f"\r{k+1}/{reps}", end='', flush=True)
         idx = np.random.randint(len(dataset))
         x, d = ds[idx], labels[idx]
+        d = d[np.newaxis].T
 
+        h = eval_network(x, thetas, biases, sigmoid)
         sigmas = [None for i in range(len(h))]
-        print(len(h), len(sigmas))
 
         for l in reversed(list(range(1, len(h)))):
             if l == len(h) - 1:
@@ -59,8 +58,7 @@ def train(dataset, arch, dims, reps):
             else:
                 sigmas[l] = sigma_lminus(thetas[l], sigmas[l+1], h[l])
 
-            print(l)
-            thetas[l-1] = thetas[l-1] - (lr * np.matmul(h[l-1].T, sigmas[l])).T
+            thetas[l-1] = thetas[l-1] - (lr * np.matmul(sigmas[l], h[l-1].T))
             biases[l-1] = biases[l-1] - lr * sigmas[l]
 
     print()
@@ -103,8 +101,8 @@ def test(layers, biases, testset):
             acertos += 1
         else:
             erros += 1
-
-    print(erros, acertos)
+    
+    print('Resultados:', acertos, erros)
 
 
 def main():
@@ -112,7 +110,7 @@ def main():
     testset = np.genfromtxt(f'mnist_test.csv', delimiter=',', skip_header=2)
     arch = [(784, 50), (50, 30), (30, 30), (30, 20), (20, 12), (12, 10)]
 
-    layers, biases = train(dataset, arch, 784, 10)
+    layers, biases = train(dataset, arch, 784, 100000)
     test(layers, biases, testset)
 
     # output_nn(layers, biases)
