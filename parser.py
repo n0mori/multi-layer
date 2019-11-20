@@ -93,6 +93,7 @@ def test(dataset, labels, weights, biases, activations):
         prec = round(tp / float(tp + fp), 2) if (tp + fp) > 0 else "N/A"
         recall = round(tp / float(tp + fn), 2) if (tp + fn) > 0 else "N/A"
         print(m, prec,recall, sep=' & ', end=' \\\\\n')
+        print(tp, fp, tn, fn)
     print()
 
 
@@ -113,6 +114,6 @@ def main(name, dims):
 if __name__ == "__main__":
     # main("LS", 2)
     # main("MDML", 5)
-    main("NL", 2)
+    # main("NL", 2)
     # main("XOR", 2)
-    # main('mnist', 10)
+    main('mnist', 784)

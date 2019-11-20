@@ -65,27 +65,28 @@ def train(dataset, arch, dims, reps):
     return thetas, biases
 
 
-# def output_nn(layers, biases):
-#     i = 1
-#     for l, b in zip(layers, biases):
-#         print(f"camada{i}")
-#         print(f"entrada {l.shape[1]}")
-#         print(f"saida  {l.shape[0]}")
-#         print('W')
-#         for line in l:
-#             print(line[0], end='')
-#             for element in line[1:]:
-#                 print(f' {element}', end='')
-#             print()
-#         print('b')
-#         print(b[0][0], end='')
-#         for element in b[1:]:
-#             print(f' {element[0]}', end='')
-#         print()
-#         print('ativacao sigmoid')
-#         print('--')
+def output_nn(layers, biases):
+    out = open("mnist_NN.txt", 'w+')
+    i = 1
+    for l, b in zip(layers, biases):
+        print(f"camada{i}", file=out)
+        print(f"entrada {l.shape[1]}", file=out)
+        print(f"saida  {l.shape[0]}", file=out)
+        print('W', file=out)
+        for line in l:
+            print(line[0], end='', file=out)
+            for element in line[1:]:
+                print(f' {element}', end='', file=out)
+            print(file=out)
+        print('b', file=out)
+        print(b[0][0], end='', file=out)
+        for element in b[1:]:
+            print(f' {element[0]}', end='', file=out)
+        print(file=out)
+        print('ativacao sigmoid', file=out)
+        print('--', file=out)
 
-#         i += 1
+        i += 1
 
 def test(layers, biases, testset):
     ds = testset[:, :784]
@@ -113,7 +114,7 @@ def main():
     layers, biases = train(dataset, arch, 784, 100000)
     test(layers, biases, testset)
 
-    # output_nn(layers, biases)
+    output_nn(layers, biases)
 
 
 if __name__ == "__main__":
